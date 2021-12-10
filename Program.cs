@@ -126,18 +126,66 @@ namespace AdventOfCode_2021_Day9
                     }
                 }
             }
-            Console.Write(count);
+            Console.WriteLine(count);
+            int[] basins = new int[3];
             foreach(var item in points)
             {
-                // if(item.Item1 == 0 && item.Item2== 0)
-                // else if(item.Item1 == text.Length-1 && item.Item2 == 0)
-                // else if(item.Item1 == 0 && item.Item1 == text[0].Length-1)
-                // else if(item.Item1 == 0)
-                // else if(item.Item1 == text.Length-1)
-                // else if(item.Item2 == 0)
-                // else if(item.Item2 == text[0].Length-1)
+                HashSet<Tuple<int,int>> point = new();
+                point.Add(Tuple.Create(item.Item1,item.Item2));
+                int basinCount = CountBasins(item.Item1,item.Item2,text, point).Count;
 
+                if(basinCount > basins[0])
+                {
+                    basins[2] = basins[1];
+                    basins[1] = basins[0];
+                    basins[0] = basinCount;
+                }
+                else if(basinCount > basins[1])
+                {
+                    basins[2] = basins[1];
+                    basins[1] = basinCount;
+                }
+                else if(basinCount > basins[2])
+                {
+                    basins[2] = basinCount;
+                }
             }
+            Console.WriteLine(basins[2] * basins[1] * basins[0]);
+        }
+        public static HashSet<Tuple<int,int>> CountBasins(int y, int x, string[] arr, HashSet<Tuple<int,int>> previousPoints)
+        {
+            HashSet<Tuple<int,int>> result = new();
+            result.Add(Tuple.Create(x,y));
+
+            if(x + 1 < arr[0].Length && arr[y][x+1] != '9' && previousPoints.Add(Tuple.Create(y,x+1)))
+            {
+                foreach(var item in CountBasins(y,x+1,arr,previousPoints))
+                {
+                    result.Add(item);
+                }
+            }
+            if(x - 1 >= 0 && arr[y][x-1] != '9' && previousPoints.Add(Tuple.Create(y,x-1)))
+            {
+                foreach(var item in CountBasins(y,x-1,arr, previousPoints))
+                {
+                    result.Add(item);
+                }
+            }
+            if(y + 1 < arr.Length && arr[y+1][x] != '9' && previousPoints.Add(Tuple.Create(y+1,x)))
+            {
+                foreach(var item in CountBasins(y+1,x,arr, previousPoints))
+                {
+                    result.Add(item);
+                }
+            }
+            if(y - 1 >= 0 && arr[y-1][x] != '9'&& previousPoints.Add(Tuple.Create(y-1,x)))
+            {
+                foreach(var item in CountBasins(y-1,x,arr, previousPoints))
+                {
+                    result.Add(item);
+                }
+            }
+            return result;
         }
     }
 }
